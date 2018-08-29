@@ -1,0 +1,19 @@
+QWidget#AudioPlayer, #m_songListWidget{
+	background-color:rgb(107, 21, 0);
+}
+
+QPushButton#m_previousButton:hover{
+	border-image:url(:/MyAudioPlayer/data/icon/previous_hover.png);
+}
+
+QPushButton#m_nextButton:hover{
+	border-image:url(:/MyAudioPlayer/data/icon/next_hover.png);
+}
+
+QPushButton#m_volumeButton:hover{
+	border-image:url(:/MyAudioPlayer/data/icon/volume_hover.png);
+}
+
+QPushButton#m_networkSearchButton:hover{
+	border-image:url(:/MyAudioPlayer/data/icon/search_hover.png);
+}
