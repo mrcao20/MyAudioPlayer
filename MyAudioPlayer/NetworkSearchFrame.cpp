@@ -7,6 +7,7 @@
 #include <qheaderview.h>
 #include "YApi.h"
 #include "QQApi.h"
+#include <qregularexpression.h>
 
 struct NetworkSearchDataPrivate
 {
@@ -103,8 +104,8 @@ NetworkSearchFrame::NetworkSearchFrame(QSize size, QStringList playlistList, QWi
 		SongSearchDetailedInfo songSearchDetailedInfo = getSongInfo(index);
 		QString songName = songSearchDetailedInfo.song_name;
 		QString songId = songSearchDetailedInfo.song_id;
-		QString songLink = d->m_networkApi->getSongLink(songId);
-		d->m_networkApi->downloadSong(songName, songLink);
+		QString songLink = d->m_networkApi->getDownloadLink(songId);
+		d->m_networkApi->downloadSong(songName, getSongType(songLink), songLink);
 	});
 	
 	connect(d->m_tableWidget, &QTableWidget::itemDoubleClicked, this, &NetworkSearchFrame::itemDoubleClicked);
@@ -113,6 +114,24 @@ NetworkSearchFrame::NetworkSearchFrame(QSize size, QStringList playlistList, QWi
 	});
 
 	show();
+}
+
+QString NetworkSearchFrame::getSongType(const QString &songLink) {
+	QString str = songLink + "-";
+	int len = str.indexOf(QRegularExpression("//")) + 2;
+	QString str2 = str.right(str.length() - len);
+	int len2 = str2.indexOf(QRegularExpression("/")) + 1;
+	QString str3 = str2.right(str2.length() - len2);
+	QRegularExpression re(R"(.+?\.(.+?)[\?&/-].*)");
+	QRegularExpressionMatch match = re.match(str3);
+	QString type;
+	if (re.captureCount() >= 1) {
+		type = match.captured(1);
+	}
+	else {
+		type = "m4a";
+	}
+	return type;
 }
 
 void NetworkSearchFrame::searchSong(const QString &songName) {

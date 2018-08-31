@@ -34,6 +34,7 @@ private slots:
 private:
 	void addItem();
 	void playSong(int index);
+	QString getSongType(const QString &songLink);
 	QList<SongSearchDetailedInfo> search();
 	const SongSearchDetailedInfo &getSongInfo(int index);
 

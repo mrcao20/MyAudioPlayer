@@ -45,6 +45,9 @@ public:
 		Single
 	};
 
+public:
+	void pause();
+
 protected:
 	void closeEvent(QCloseEvent *event);
 	void keyPressEvent(QKeyEvent *event);

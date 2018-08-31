@@ -75,8 +75,8 @@ void NetworkApiBase::getValue(QJsonObject &root, QJsonValue &nodeValue, QStringL
 	}
 }
 
-void NetworkApiBase::downloadSong(const QString &fileName, const QString &songLink) {
-	d->m_downloadManagerWidget->downloadRequested(fileName, songLink);
+void NetworkApiBase::downloadSong(const QString &fileName, const QString &type, const QString &songLink) {
+	d->m_downloadManagerWidget->downloadRequested(QString("%1.%2").arg(fileName, type), songLink);
 }
 
 QByteArray NetworkApiBase::getNetworkData(const QString &url, const QMap<QByteArray, QByteArray> &headers) {

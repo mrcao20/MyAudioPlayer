@@ -73,6 +73,10 @@ inline void QQApi::getSongMid(const int index) {
 	closeDatabase();
 }
 
+QString QQApi::getDownloadLink(const QString &songMid) {
+	return getSongLink(songMid);
+}
+
 QString QQApi::getSongLink(const int index) {
 	getSongMid(index);
 	return getSongLink(m_songMid);

@@ -10,6 +10,7 @@ public:
 	QQApi(QObject * = 0);
 	virtual ~QQApi(){}
 
+	QString getDownloadLink(const QString &songMid) override;
 	QString getSongLink(const int index);
 	QString getSongLink(const QString &songMid);
 	QString getLyricLink(const int index);

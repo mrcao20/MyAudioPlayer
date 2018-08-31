@@ -78,7 +78,7 @@ void DownloadManagerWidget::downloadRequested(QWebEngineDownloadItem *download)
 
 void DownloadManagerWidget::downloadRequested(const QString &fileName, const QString &url) {
 
-	QString path = d->m_appPath + "/data/song/local/" + fileName + ".m4a";
+	QString path = d->m_appPath + "/data/song/local/" + fileName;
 	if (QFile::exists(path)) {
 		QString tempPath;
 		QFileInfo fileInfo(path);

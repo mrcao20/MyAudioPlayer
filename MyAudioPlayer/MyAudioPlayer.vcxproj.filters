@@ -108,6 +108,9 @@
     <ClCompile Include="downloadmanagerwidget.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
+    <ClCompile Include="Crypto.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widget.h">
@@ -161,6 +164,9 @@
     <QtMoc Include="downloadmanagerwidget.h">
       <Filter>Header Files\Network</Filter>
     </QtMoc>
+    <QtMoc Include="Crypto.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="AudioPlayer.ui">
@@ -185,5 +191,14 @@
     <ClInclude Include="HookDll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MyAudioPlayer.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="data\icon\format.ico" />
   </ItemGroup>
 </Project>

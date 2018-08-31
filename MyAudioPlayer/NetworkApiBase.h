@@ -24,8 +24,9 @@ public:
 	virtual ~NetworkApiBase();
 
 	int songCount() { return m_songCount; }
-	void downloadSong(const QString &fileName, const QString &songLink);
+	void downloadSong(const QString &fileName, const QString &type, const QString &songLink);
 	virtual QList<SongSearchDetailedInfo> searchSong(const QString &songName, int offset = 0) { return QList<SongSearchDetailedInfo>(); }
+	virtual QString getDownloadLink(const QString &songId) { return ""; }
 	virtual QString getSongLink(const QString &songId) { return ""; }
 	virtual QString getLyricLink(const QString &songId) { return ""; }
 

@@ -570,6 +570,7 @@ void MyAudioPlayer::playPrevious() {
 void MyAudioPlayer::replay(int index) {
 	if (d->m_songListWidget->count() < 1)
 		return;
+	pause();
 	if (d->m_networkSearchFrame) {
 		if(!d->m_isPaused)
 			d->m_playButton->click();
@@ -643,6 +644,12 @@ void MyAudioPlayer::playFile(const QString &filePath)
 	d->m_mediaPlayer.setMedia(url);
 	d->m_mediaPlayer.play();
 	d->m_isPaused = false;
+}
+
+// 暂停整个播放操作
+void MyAudioPlayer::pause() {
+	d->m_mediaPlayer.pause();		// 当播放新的歌曲时，强制暂停上一首各个
+	d->m_lyricWidget->stop();
 }
 
 void MyAudioPlayer::getMusicApi(const QString &apiName) {
