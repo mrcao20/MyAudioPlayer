@@ -1,14 +1,25 @@
 #include "ApiBase.h"
 #include <qvariant.h>
-#include <qdebug.h>
+#include <qmessagebox.h>
+
+struct ApiBaseDataPrivate{
+	bool m_isRunningDBService;
+};
 
 ApiBase::ApiBase(QObject *parent)
-	: QObject(parent) {
+	: QObject(parent) ,
+	d(new ApiBaseDataPrivate) {
 
-	startSvc("MYSQL57");
 }
 
-void ApiBase::initDatabase() {
+void ApiBase::init() {
+	d->m_isRunningDBService = startSvc("MYSQL57");
+	if (!d->m_isRunningDBService) {
+		QMessageBox::warning(NULL, "warning", "failed start service!");
+	}
+}
+
+bool ApiBase::initDatabase() {
 	if (!QSqlDatabase::contains("audio_database_connect")) {
 		QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL", "audio_database_connect");
 		db.setHostName("localhost");
@@ -16,10 +27,17 @@ void ApiBase::initDatabase() {
 		db.setDatabaseName("d_music");
 		db.setUserName("root");
 		db.setPassword("839566521");
-		while (!db.open()) { Sleep(1000); }
+		while (!db.open()) {
+			if (!d->m_isRunningDBService) {
+				QSqlDatabase::removeDatabase("audio_database_connect");
+				return false;
+			}
+			Sleep(300);
+		}
 	}
 	m_db = QSqlDatabase::database("audio_database_connect");
 	m_query = QSqlQuery(m_db);
+	return true;
 }
 
 void ApiBase::closeDatabase() {
@@ -28,7 +46,9 @@ void ApiBase::closeDatabase() {
 }
 
 QStringList ApiBase::loadSonglist() {
-	initDatabase();
+	if (!initDatabase()) {
+		return QStringList();
+	}
 	QStringList songlistList;
 	m_query.exec(QString("SELECT songlist_name FROM t_songlistinfo"));
 	while (m_query.next()) {
@@ -39,7 +59,9 @@ QStringList ApiBase::loadSonglist() {
 }
 
 QList<SongBaseInfo> ApiBase::loadSong(const QString &songlistName) {
-	initDatabase();
+	if (!initDatabase()) {
+		return QList<SongBaseInfo>();
+	}
 	QList<SongBaseInfo> songBaseInfoList;
 	int songlist_id = getSonglistId(songlistName);
 	m_query.exec(QString("SELECT t_m.song_index, song_name, src_tabel FROM t_music t_m, t_songlist t_p "\
@@ -58,7 +80,9 @@ QList<SongBaseInfo> ApiBase::loadSong(const QString &songlistName) {
 }
 
 void ApiBase::addSong(const QString &songlistName, int index) {
-	initDatabase();
+	if (!initDatabase()) {
+		return;
+	}
 	addSong(index, songlistName);
 	closeDatabase();
 }
@@ -79,8 +103,10 @@ inline void ApiBase::deleteSong(int index, int songlistId) {
 }
 
 QString ApiBase::getNewSonglist() {
-	initDatabase();
 	QString songlist = "new songlist";
+	if (!initDatabase()) {
+		return songlist;
+	}
 	int i = 0;
 	do {
 		if (i > 0)
@@ -94,14 +120,18 @@ QString ApiBase::getNewSonglist() {
 }
 
 void ApiBase::deleteSong(int index, const QString &songlistName) {
-	initDatabase();
+	if (!initDatabase()) {
+		return;
+	}
 	int songlist_id = getSonglistId(songlistName);
 	deleteSong(index, songlist_id);
 	closeDatabase();
 }
 
 void ApiBase::deleteSonglist(const QString &songlistName) {
-	initDatabase();
+	if (!initDatabase()) {
+		return;
+	}
 	int songlist_id = getSonglistId(songlistName);
 	m_query.exec(QString("SELECT song_index FROM t_songlist WHERE songlist_id = %1").arg(songlist_id));
 	while (m_query.next()) {
@@ -122,7 +152,9 @@ void ApiBase::deleteSonglist(const QString &songlistName) {
 如果存在，则取消操作，并返回false
 */
 bool ApiBase::addSonglist(const QString &songlistName) {
-	initDatabase();
+	if (!initDatabase()) {
+		return false;
+	}
 	bool isExists = false;
 	m_query.exec(QString("SELECT * FROM t_songlistinfo WHERE songlist_name = '%1'").arg(songlistName));
 	isExists = m_query.next();
@@ -133,7 +165,9 @@ bool ApiBase::addSonglist(const QString &songlistName) {
 }
 
 bool ApiBase::renameSonglist(const QString &newSonglistName, const QString &songlistName) {
-	initDatabase();
+	if (!initDatabase()) {
+		return false;
+	}
 	bool isRename = true;
 	m_query.exec(QString("SELECT songlist_id FROM t_songlistinfo WHERE songlist_name='%1'").arg(newSonglistName));
 	isRename = !m_query.next();
@@ -156,19 +190,19 @@ int ApiBase::getMaxSongIndex() {
 	return m_query.value(0).toInt();
 }
 
-void ApiBase::startSvc(LPSTR szServiceName) {
+bool ApiBase::startSvc(LPSTR szServiceName) {
 	SC_HANDLE schService;
 	schService = OpenServiceA(OpenSCManagerA(NULL, NULL, GENERIC_READ), szServiceName, SERVICE_ALL_ACCESS);
 	if (!schService) {
 		printf("mysql service not found\n");
 		fflush(stdout);
-		return;
+		return false;
 	}
 	SERVICE_STATUS svcStatus = { 0 };
 	QueryServiceStatus(schService, &svcStatus);
 	if (svcStatus.dwCurrentState == SERVICE_RUNNING) {
 		CloseServiceHandle(schService);
-		return;
+		return true;
 	}
 	bool ret = StartServiceA(schService, 0, NULL);
 	//WaitServiceState(schService, NULL, 1000, NULL);
@@ -176,6 +210,9 @@ void ApiBase::startSvc(LPSTR szServiceName) {
 	if (!ret) {
 		printf("Service start failed(%d)\n", GetLastError());
 		fflush(stdout);
-		return;
+		return ret;
 	}
+	return ret;
 }
+
+ApiBase::~ApiBase(){}

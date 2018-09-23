@@ -33,7 +33,9 @@ YApi::YApi(QObject *parent)
 }
 
 int YApi::addSong(const QString &song_name, const QString &song_id, const QString &songlistName) {
-	initDatabase();
+	if (!initDatabase()) {
+		return -1;
+	}
 	QString table = "t_ymusic";
 	m_query.exec(QString("SELECT song_index FROM %1 WHERE song_id = '%2'").arg(table).arg(song_id));
 	int index;
@@ -104,7 +106,7 @@ QList<SongSearchDetailedInfo> YApi::searchSong_new(const QString &songName, int 
 	}
 	return songSearchDetailedInfos;
 }
-
+#include <QMessageBox>
 QString YApi::getEncryptParams(const QString &text, const QString &secKey) {
 	QString iv = "0102030405060708";
 	QString params = d->m_crypto.aesEncrypt(text, "0CoJUm6Qyw8W8jud", iv);
@@ -119,7 +121,10 @@ QString YApi::getEncryptEncSecKey(const QString &text) {
 }
 
 void YApi::getSongId(const int index) {
-	initDatabase();
+	if (!initDatabase()) {
+		m_songId = "";
+		return;
+	}
 	m_query.exec(QString("SELECT song_id FROM t_ymusic WHERE song_index = %1").arg(index));
 	m_query.next();
 	m_songId = m_query.value(0).toString();

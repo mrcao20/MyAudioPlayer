@@ -13,13 +13,16 @@ struct SongBaseInfo{
 	QString m_songSrcTabel;
 };
 
+struct ApiBaseDataPrivate;
+
 class ApiBase : public QObject{
 	Q_OBJECT
 
 public:
 	ApiBase(QObject *parent = 0);
-	virtual ~ApiBase(){}
+	virtual ~ApiBase();
 
+	void init();
 	virtual int addSong(const QString &song_name, const QString &song_src, const QString &songlistName) { return -1; }
 	void addSong(const QString &songlistName, int index);
 	QStringList loadSonglist();
@@ -35,7 +38,7 @@ public:
 	bool renameSonglist(const QString &newSonglistName, const QString &songlistName);
 
 protected:
-	void initDatabase();
+	bool initDatabase();
 	void closeDatabase();
 	void addSong(int index, const QString &song_name, const QString &src_tabel, const QString &songlistName);
 	void addSong(int index, const QString &songlistName);
@@ -45,11 +48,12 @@ protected:
 	QSqlQuery m_query;
 
 private:
-	void startSvc(LPSTR szServiceName);
+	bool startSvc(LPSTR szServiceName);
 	int getSonglistId(const QString &songlistName);
 	void deleteSong(int index, int songlistId);
 
 private:
 	QSqlDatabase m_db;
+	QScopedPointer<ApiBaseDataPrivate> d;
 
 };

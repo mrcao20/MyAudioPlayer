@@ -23,7 +23,9 @@ QQApi::QQApi(QObject *parent)
 }
 
 int QQApi::addSong(const QString &song_name, const QString &song_mid, const QString &songlistName) {
-	initDatabase();
+	if (!initDatabase()) {
+		return -1;
+	}
 	QString table = "t_qqmusic";
 	m_query.exec(QString("SELECT song_index FROM %1 WHERE song_mid = '%2'").arg(table).arg(song_mid));
 	int index;
@@ -66,7 +68,10 @@ QList<SongSearchDetailedInfo> QQApi::searchSong(const QString &songName, int off
 }
 
 inline void QQApi::getSongMid(const int index) {
-	initDatabase();
+	if (!initDatabase()) {
+		m_songMid = "";
+		return;
+	}
 	m_query.exec(QString("SELECT song_mid FROM t_qqmusic WHERE song_index = %1").arg(index));
 	m_query.next();
 	m_songMid = m_query.value(0).toString();

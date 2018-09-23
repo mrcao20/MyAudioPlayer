@@ -10,6 +10,7 @@
 #include <QRegularExpression>
 #include <qapplication.h>
 #include "downloadmanagerwidget.h"
+#include "Global.h"
 
 struct NetworkApiBaseDataPrivate{
 	QScopedPointer<DownloadManagerWidget> m_downloadManagerWidget;
@@ -30,8 +31,7 @@ QJsonValue NetworkApiBase::getJsonValue(const QByteArray &json, const QString &n
 	QJsonValue nodeValue;
 	QJsonDocument jsonDocument = QJsonDocument::fromJson(json);
 	if (jsonDocument.isEmpty()) {
-		printf("audio link error, json value not found\n");
-		fflush(stdout);
+		output << "audio link error, json value not found";
 		return nodeValue;
 	}
 	QJsonObject root = jsonDocument.object();
@@ -54,9 +54,9 @@ QJsonValue NetworkApiBase::getJsonValue(const QJsonObject &root, const QString &
 根据所指定的nodelist返回第一个满足条件的nodeValue
 */
 void NetworkApiBase::getValue(QJsonObject &root, QJsonValue &nodeValue, QStringList &nodeList) {
+	QStringList list = nodeList;
 	for (int i = 0; i < nodeList.size(); i++) {
-		QStringList list = nodeList;
-		nodeValue = root.value(list.takeAt(i));   // 如果不存在该node，则nodeValue的type为Undefined
+		nodeValue = root.value(list.takeFirst());   // 如果不存在该node，则nodeValue的type为Undefined
 		if (nodeValue.type() != QJsonValue::Object && nodeValue.type() != QJsonValue::Array)
 			break;
 		if (i == nodeList.size() - 1)

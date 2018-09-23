@@ -111,6 +111,15 @@
     <ClCompile Include="Crypto.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MyNativeEventFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Global.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widget.h">
@@ -167,6 +176,12 @@
     <QtMoc Include="Crypto.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Global.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="TcpClient.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="AudioPlayer.ui">
@@ -192,6 +207,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MyNativeEventFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

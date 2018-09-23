@@ -1,5 +1,5 @@
 #pragma once
-#pragma execution_character_set("UTF-8")
+#pragma execution_character_set("utf-8")
 #include <QWidget>  
 #include <qmap.h>
 #include <qlist.h>
@@ -47,6 +47,8 @@ public:
 
 public:
 	void pause();
+	void stop();
+	void quit();
 
 protected:
 	void closeEvent(QCloseEvent *event);

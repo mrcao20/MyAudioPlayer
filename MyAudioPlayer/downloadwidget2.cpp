@@ -6,6 +6,7 @@
 #include <qdebug.h>
 #include <qnetworkaccessmanager.h>
 #include "downloaditem.h"
+#include <qdir.h>
 
 DownloadWidget2::DownloadWidget2(DownloadItem *download, QWidget *parent)
 	: QFrame(parent)
@@ -60,6 +61,10 @@ DownloadWidget2::~DownloadWidget2() {
 	if (m_download) {
 		m_download->pause();
 		if (m_download->isPaused()) {
+			QDir dir(qApp->applicationDirPath() + "/data/serialization/");
+			if (!dir.exists()) {
+				dir.mkpath(qApp->applicationDirPath() + "/data/serialization/");
+			}
 			QFileInfo fileInfo(m_download->path());
 			QString fileName = qApp->applicationDirPath() + "/data/serialization/" + fileInfo.fileName() + ".save";
 			QFile file(fileName);

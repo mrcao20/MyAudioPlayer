@@ -22,6 +22,8 @@
 #include "LocalApi.h"
 #include "QQApi.h"
 #include "YApi.h"
+#include "TcpClient.h"
+#include "Global.h"
 
 #include "ui_AudioPlayer.h"
 
@@ -47,11 +49,14 @@ struct AudioPlayerDataPrivate : public Ui::AudioPlayer{
 	NetworkSearchFrame *m_networkSearchFrame;
 	bool m_isChangeSearch;
 	bool m_isTranslatedLyric;
+	bool m_isShowLyric;
 	QString m_searchSrc;
 	QString m_lyric;
 	QString m_translatedLyric;
 	QScopedPointer<ApiBase> m_musicApi;
 	QStringList m_songlistList;
+	bool m_isAppQuit;
+	TcpClient *m_tcpClient;
 };
 
 MyAudioPlayer::MyAudioPlayer(QWidget *parent)
@@ -66,8 +71,10 @@ MyAudioPlayer::MyAudioPlayer(QWidget *parent)
 	d->m_currentSonglist = setting.value("currentSonglist", "computer").toString();
 	d->m_currentMusicIndex = setting.value("currentMusicIndex", -1).toInt();
 	d->m_isTranslatedLyric = setting.value("isTranslatedLyric", false).toBool();
+	d->m_isShowLyric = setting.value("isShowLyric", false).toBool();
 	setting.endGroup();
 	
+	d->m_isAppQuit = false;
 	d->m_songMenu = new QMenu(this);
 	d->m_songlistMenu = new QMenu(this);
 	d->m_actionGroup = new QActionGroup(this);
@@ -81,8 +88,11 @@ MyAudioPlayer::MyAudioPlayer(QWidget *parent)
 		d->m_lyricWidget.reset(new UntranslatedLyricWidget());
 	else
 		d->m_lyricWidget.reset(new TranslatedLyricWidget());
+	d->m_tcpClient = new TcpClient(this);
+	d->m_tcpClient->init();
 
 	getMusicApi();
+	d->m_musicApi->init();
 	loadStyle(this, ":/QSS/data/QSS/MyAudioPlayer.qss");
 	
 	loadPlaylist();
@@ -262,6 +272,7 @@ void MyAudioPlayer::initAudioPlayer() {
 		execListWidgetMenu(d->m_songlistListWidget, pos, d->m_songlistMenu);
 	});
 	connect(d->m_songListWidget, &QListWidget::itemDoubleClicked, [this](QListWidgetItem *item) {
+		d->m_alreadyPlayedIndex.clear();
 		playNext(d->m_songListWidget->row(item));
 		if (!d->m_searchLineEdit->text().isEmpty())
 			d->m_searchLineEdit->clear();
@@ -277,6 +288,9 @@ void MyAudioPlayer::initAudioPlayer() {
 	connect(&d->m_mediaPlayer, &QMediaPlayer::durationChanged, this, &MyAudioPlayer::updateDuration);
 	connect(&d->m_mediaPlayer, &QMediaPlayer::positionChanged, this, &MyAudioPlayer::updatePosition);
 	connect(&d->m_mediaPlayer, &QMediaPlayer::stateChanged, this, &MyAudioPlayer::updateState);
+	connect(&d->m_mediaPlayer, qOverload<QMediaPlayer::Error>(&QMediaPlayer::error), [this]() {
+		output << d->m_mediaPlayer.errorString();
+	});
 	connect(d->m_positionSlider, &QSlider::valueChanged, this, &MyAudioPlayer::setPosition);
 	connect(d->m_playOrderButton, &QPushButton::clicked, [this]() {
 		switch (d->m_playMode)
@@ -306,6 +320,7 @@ void MyAudioPlayer::initAudioPlayer() {
 			d->m_lyricWidget->hide();
 		else
 			d->m_lyricWidget->show();
+		d->m_isShowLyric = d->m_lyricWidget->isVisible();
 	});
 	connect(d->m_lyricTranslatedButton, &QPushButton::clicked, [this]() {
 		QString lyric = "";
@@ -515,7 +530,7 @@ void MyAudioPlayer::loadItem() {
 		d->m_songSrcInfoList.append(songSrcInfo);
 		d->m_songCount++;
 	}
-	d->m_alreadyPlayedIndex.reserve(d->m_songCount / 3);
+	d->m_alreadyPlayedIndex.reserve(d->m_songCount);
 	d->m_songListWidget->setCurrentRow(d->m_currentMusicIndex);
 }
 
@@ -537,6 +552,7 @@ int MyAudioPlayer::getPlayNum() {
 		playNum = playNum >= d->m_songListWidget->count() ? 0 : playNum;
 		break;
 	case MyAudioPlayer::Single:
+		d->m_alreadyPlayedIndex.clear();
 		playNum = d->m_songListWidget->currentRow();
 		break;
 	default:
@@ -550,7 +566,7 @@ void MyAudioPlayer::playNext(int index) {
 	int currentIndex = d->m_songListWidget->currentRow();
 	if (currentIndex >= 0 && currentIndex < d->m_songCount) {
 		if (!d->m_alreadyPlayedIndex.contains(currentIndex) && (currentIndex != index)) {
-			if ((d->m_alreadyPlayedIndex.size() >= (d->m_songCount / 3)) && (d->m_alreadyPlayedIndex.size() > 0))
+			if ((d->m_alreadyPlayedIndex.size() >= (d->m_songCount / 4 * 3)) && (d->m_alreadyPlayedIndex.size() > 0))
 				d->m_alreadyPlayedIndex.removeLast();
 			if(d->m_songCount > 1)
 				d->m_alreadyPlayedIndex.prepend(currentIndex);
@@ -566,11 +582,11 @@ void MyAudioPlayer::playPrevious() {
 	replay(index);
 }
 
-// 切换歌曲
+// 切换歌曲, 强制终止上一首歌曲
 void MyAudioPlayer::replay(int index) {
 	if (d->m_songListWidget->count() < 1)
 		return;
-	pause();
+	stop();
 	if (d->m_networkSearchFrame) {
 		if(!d->m_isPaused)
 			d->m_playButton->click();
@@ -590,6 +606,7 @@ void MyAudioPlayer::replay(int index) {
 }
 
 void MyAudioPlayer::play(const QString &songName, const QString &songLink, const QString &lyricLink) {
+	output << songName;
 	d->m_infoLabel->setText(songName);
 	d->m_lyric = d->m_musicApi->getLyric(lyricLink);
 	d->m_translatedLyric = d->m_musicApi->getTranslatedLyric(lyricLink);
@@ -610,6 +627,7 @@ void MyAudioPlayer::play(const QString &songName, const QString &songLink, const
 	else 
 		lyric = d->m_lyric;
 	d->m_lyricWidget->setLyric(lyric, 0);
+	d->m_lyricWidget->setVisible(d->m_isShowLyric);
 }
 
 SongDetailedInfo &MyAudioPlayer::getSongDetailedInfo(int index) {
@@ -648,7 +666,13 @@ void MyAudioPlayer::playFile(const QString &filePath)
 
 // 暂停整个播放操作
 void MyAudioPlayer::pause() {
-	d->m_mediaPlayer.pause();		// 当播放新的歌曲时，强制暂停上一首各个
+	d->m_mediaPlayer.pause();		// 当播放新的歌曲时，强制暂停上一首歌
+	d->m_lyricWidget->stop();
+}
+
+// 停止播放
+void MyAudioPlayer::stop() {
+	d->m_mediaPlayer.stop();
 	d->m_lyricWidget->stop();
 }
 
@@ -875,13 +899,21 @@ void MyAudioPlayer::keyPressEvent(QKeyEvent *event) {
 	}
 }
 
+void MyAudioPlayer::quit() {
+	if (!d->m_isAppQuit) {
+		UnsetHook();
+		QSettings setting(qApp->applicationDirPath() + "/data/init.ini", QSettings::IniFormat);
+		setting.beginGroup("MyAudioPlayer");
+		setting.setValue("currentSonglistIndex", d->m_currentSonglistIndex);
+		setting.setValue("currentSonglist", d->m_currentSonglist);
+		setting.setValue("currentMusicIndex", d->m_currentMusicIndex);
+		setting.setValue("isTranslatedLyric", d->m_isTranslatedLyric);
+		setting.setValue("isShowLyric", d->m_isShowLyric);
+		setting.endGroup();
+		d->m_isAppQuit = true;
+	}
+}
+
 MyAudioPlayer::~MyAudioPlayer() {
-	UnsetHook();
-	QSettings setting(qApp->applicationDirPath() + "/data/init.ini", QSettings::IniFormat);
-	setting.beginGroup("MyAudioPlayer");
-	setting.setValue("currentSonglistIndex", d->m_currentSonglistIndex);
-	setting.setValue("currentSonglist", d->m_currentSonglist);
-	setting.setValue("currentMusicIndex", d->m_currentMusicIndex);
-	setting.setValue("isTranslatedLyric", d->m_isTranslatedLyric);
-	setting.endGroup();
+	quit();
 }

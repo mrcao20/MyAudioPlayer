@@ -1,5 +1,6 @@
 #include "MyAudioPlayer.h"
 #include "SingleApplication.h"
+#include "MyNativeEventFilter.h"
 
 QString commandLineFilePathArgument() {
 	const QStringList args = QCoreApplication::arguments();
@@ -20,6 +21,9 @@ int main(int argc, char *argv[]){
 	if (!filePath.isEmpty())
 		w.playFile(filePath);
 	w.show();
+	MyNativeEventFilter nativeEventFilter;
+	nativeEventFilter.setMainWidget(&w);
+	a.installNativeEventFilter(&nativeEventFilter);
 	return a.exec();
 	//QSharedMemory mem("AudioPlayer");//以系统exe名称为参数，定义共享内存mem  
 	//if (!mem.create(1))//创建共享内存mem，如果该共享内存已存在，则弹出提示对话框，并退出  

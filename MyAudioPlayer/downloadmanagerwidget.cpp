@@ -25,6 +25,9 @@ DownloadManagerWidget::DownloadManagerWidget(QWidget *parent)
 #endif // _DEBUG
 
 	QDir dir(d->m_appPath + "/data/serialization");
+	if (!dir.exists()) {
+		dir.mkpath(d->m_appPath + "/data/serialization");
+	}
 	QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files);
 	for (QFileInfo fileInfo : fileInfoList) {
 		DownloadItem *downloadItem = new DownloadItem;
@@ -78,7 +81,12 @@ void DownloadManagerWidget::downloadRequested(QWebEngineDownloadItem *download)
 
 void DownloadManagerWidget::downloadRequested(const QString &fileName, const QString &url) {
 
-	QString path = d->m_appPath + "/data/song/local/" + fileName;
+	QString dirPath = d->m_appPath + "/data/song/local/";
+	QDir dir;
+	if (!dir.exists(dirPath)) {
+		dir.mkpath(dirPath);
+	}
+	QString path = dirPath + fileName;
 	if (QFile::exists(path)) {
 		QString tempPath;
 		QFileInfo fileInfo(path);
