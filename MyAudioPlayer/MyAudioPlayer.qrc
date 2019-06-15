@@ -3,13 +3,12 @@
         <file>data/QSS/PlayButton.qss</file>
         <file>data/QSS/PlayOrderButton.qss</file>
         <file>data/QSS/MyAudioPlayer.qss</file>
-        <file>data/QSS/Scrollbar.qss</file>
         <file>data/QSS/SonglistListWidget.qss</file>
+        <file>data/QSS/Scrollbar.qss</file>
     </qresource>
     <qresource prefix="/MyAudioPlayer">
         <file>data/icon/download_icon.png</file>
         <file>data/icon/expand.png</file>
-        <file>data/icon/format.png</file>
         <file>data/icon/localSong.png</file>
         <file>data/icon/login_hover.png</file>
         <file>data/icon/logo.png</file>
@@ -49,7 +48,7 @@
         <file>data/icon/volume.png</file>
         <file>data/icon/volume_hover.png</file>
         <file>data/icon/warning.png</file>
-        <file>data/icon/format.ico</file>
+        <file>data/icon/AudioPlayer.png</file>
     </qresource>
     <qresource prefix="/">
         <file>images/browser/icon/AppLogoColor.png</file>

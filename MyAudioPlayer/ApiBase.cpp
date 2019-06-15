@@ -88,7 +88,8 @@ void ApiBase::addSong(const QString &songlistName, int index) {
 }
 
 void ApiBase::addSong(int index, const QString &song_name, const QString &src_tabel, const QString &songlistName) {
-	m_query.exec(QString("INSERT INTO t_music VALUES(%1, '%2', '%3')").arg(index).arg(song_name).arg(src_tabel));
+	// 为防止歌曲名出现单引号造成语句执行失败，故歌曲名用双引号表示
+	m_query.exec(QString(R"(INSERT INTO t_music VALUES(%1, "%2", '%3'))").arg(index).arg(song_name).arg(src_tabel));
 	addSong(index, songlistName);
 }
 
@@ -194,7 +195,7 @@ bool ApiBase::startSvc(LPSTR szServiceName) {
 	SC_HANDLE schService;
 	schService = OpenServiceA(OpenSCManagerA(NULL, NULL, GENERIC_READ), szServiceName, SERVICE_ALL_ACCESS);
 	if (!schService) {
-		printf("mysql service not found\n");
+		printf("mysql service not found '%d'\n", ::GetLastError());
 		fflush(stdout);
 		return false;
 	}

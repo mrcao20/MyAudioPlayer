@@ -6,6 +6,7 @@
 #include "Crypto.h"
 #include <QUrl>
 #include <qvariant.h>
+#include <QTextStream>
 
 #ifdef _DEBUG
 #include <qdebug.h>
@@ -88,6 +89,7 @@ QList<SongSearchDetailedInfo> YApi::searchSong_new(const QString &songName, int 
 	postData.append(QString("limit=%1&").arg(limit));
 	postData.append(QString("total=%1").arg(total));
 	QByteArray json = getNetworkData(SEARCH_SONG_POST, postData);
+	QTextStream(stdout) << json;
 	m_songCount = getJsonValue(json, "result.songCount").toInt();
 	QJsonArray jsonArray = getJsonValue(json, "result.songs").toArray();
 	for (auto itr = jsonArray.begin(); itr != jsonArray.end(); itr++) {

@@ -97,6 +97,7 @@ private:
 	void loadStyle(QWidget *widget, const QString &fileName);
 	void addSonglist(QListWidgetItem *item);
 	void renameSonglist(QListWidgetItem *item);
+	void changeDisplay();
 
 private:
 	QScopedPointer<AudioPlayerDataPrivate> d;

@@ -18,7 +18,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="MyAudioPlayer.qrc">
-    <normaloff>:/MyAudioPlayer/data/icon/format.ico</normaloff>:/MyAudioPlayer/data/icon/format.ico</iconset>
+    <normaloff>:/MyAudioPlayer/data/icon/AudioPlayer.png</normaloff>:/MyAudioPlayer/data/icon/AudioPlayer.png</iconset>
   </property>
   <widget class="QLabel" name="m_positionLabel">
    <property name="geometry">

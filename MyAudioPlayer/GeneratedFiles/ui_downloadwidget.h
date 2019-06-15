@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'downloadwidget.ui'
 **
-** Created by: Qt User Interface Compiler version 5.10.1
+** Created by: Qt User Interface Compiler version 5.12.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,12 +10,10 @@
 #define UI_DOWNLOADWIDGET_H
 
 #include <QtCore/QVariant>
-#include <QtWidgets/QAction>
+#include <QtGui/QIcon>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGridLayout>
-#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QProgressBar>
 #include <QtWidgets/QPushButton>
@@ -35,31 +33,31 @@ public:
     void setupUi(QFrame *DownloadWidget)
     {
         if (DownloadWidget->objectName().isEmpty())
-            DownloadWidget->setObjectName(QStringLiteral("DownloadWidget"));
+            DownloadWidget->setObjectName(QString::fromUtf8("DownloadWidget"));
         DownloadWidget->resize(147, 78);
-        DownloadWidget->setStyleSheet(QLatin1String("#DownloadWidget {\n"
+        DownloadWidget->setStyleSheet(QString::fromUtf8("#DownloadWidget {\n"
 "  background: palette(button);\n"
 "  border: 1px solid palette(dark);\n"
 "  margin: 0px;\n"
 "}"));
         m_topLevelLayout = new QGridLayout(DownloadWidget);
-        m_topLevelLayout->setObjectName(QStringLiteral("m_topLevelLayout"));
+        m_topLevelLayout->setObjectName(QString::fromUtf8("m_topLevelLayout"));
         m_topLevelLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
         m_dstName = new QLabel(DownloadWidget);
-        m_dstName->setObjectName(QStringLiteral("m_dstName"));
-        m_dstName->setStyleSheet(QLatin1String("font-weight: bold\n"
+        m_dstName->setObjectName(QString::fromUtf8("m_dstName"));
+        m_dstName->setStyleSheet(QString::fromUtf8("font-weight: bold\n"
 ""));
 
         m_topLevelLayout->addWidget(m_dstName, 0, 0, 1, 1);
 
         m_cancelButton = new QPushButton(DownloadWidget);
-        m_cancelButton->setObjectName(QStringLiteral("m_cancelButton"));
+        m_cancelButton->setObjectName(QString::fromUtf8("m_cancelButton"));
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(m_cancelButton->sizePolicy().hasHeightForWidth());
         m_cancelButton->setSizePolicy(sizePolicy);
-        m_cancelButton->setStyleSheet(QLatin1String("QPushButton {\n"
+        m_cancelButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "  margin: 1px;\n"
 "  border: none;\n"
 "}\n"
@@ -73,24 +71,24 @@ public:
         m_topLevelLayout->addWidget(m_cancelButton, 0, 2, 1, 1);
 
         m_progressBar = new QProgressBar(DownloadWidget);
-        m_progressBar->setObjectName(QStringLiteral("m_progressBar"));
-        m_progressBar->setStyleSheet(QStringLiteral("font-size: 12px"));
+        m_progressBar->setObjectName(QString::fromUtf8("m_progressBar"));
+        m_progressBar->setStyleSheet(QString::fromUtf8("font-size: 12px"));
         m_progressBar->setValue(24);
 
         m_topLevelLayout->addWidget(m_progressBar, 2, 0, 1, 3);
 
         m_srcUrl = new QLabel(DownloadWidget);
-        m_srcUrl->setObjectName(QStringLiteral("m_srcUrl"));
+        m_srcUrl->setObjectName(QString::fromUtf8("m_srcUrl"));
         m_srcUrl->setMaximumSize(QSize(350, 16777215));
-        m_srcUrl->setStyleSheet(QStringLiteral(""));
+        m_srcUrl->setStyleSheet(QString::fromUtf8(""));
 
         m_topLevelLayout->addWidget(m_srcUrl, 1, 0, 1, 3);
 
         m_pauseButton = new QPushButton(DownloadWidget);
-        m_pauseButton->setObjectName(QStringLiteral("m_pauseButton"));
+        m_pauseButton->setObjectName(QString::fromUtf8("m_pauseButton"));
         sizePolicy.setHeightForWidth(m_pauseButton->sizePolicy().hasHeightForWidth());
         m_pauseButton->setSizePolicy(sizePolicy);
-        m_pauseButton->setStyleSheet(QLatin1String("QPushButton {\n"
+        m_pauseButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "  margin: 1px;\n"
 "  border: none;\n"
 "}\n"
@@ -100,7 +98,7 @@ public:
 "  background: palette(midlight);\n"
 "}"));
         QIcon icon;
-        icon.addFile(QStringLiteral(":/images/browser/icon/pause.jpg"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/images/browser/icon/pause.jpg"), QSize(), QIcon::Normal, QIcon::Off);
         m_pauseButton->setIcon(icon);
 
         m_topLevelLayout->addWidget(m_pauseButton, 0, 1, 1, 1);

@@ -2,6 +2,7 @@
 #include "LyricLabel.h"
 #include <qtextstream.h>
 #include <QTime>
+#include <QRegularExpression>
 
 QTextStream cout(stdout);
 

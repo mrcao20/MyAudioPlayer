@@ -55,7 +55,6 @@ struct AudioPlayerDataPrivate : public Ui::AudioPlayer{
 	QString m_translatedLyric;
 	QScopedPointer<ApiBase> m_musicApi;
 	QStringList m_songlistList;
-	bool m_isAppQuit;
 	TcpClient *m_tcpClient;
 };
 
@@ -74,7 +73,6 @@ MyAudioPlayer::MyAudioPlayer(QWidget *parent)
 	d->m_isShowLyric = setting.value("isShowLyric", false).toBool();
 	setting.endGroup();
 	
-	d->m_isAppQuit = false;
 	d->m_songMenu = new QMenu(this);
 	d->m_songlistMenu = new QMenu(this);
 	d->m_actionGroup = new QActionGroup(this);
@@ -175,7 +173,7 @@ void MyAudioPlayer::loadStyle(QWidget *widget, const QString &fileName) {
 void MyAudioPlayer::initTrayMenu() {
 	d->m_system_tray = new QSystemTrayIcon(this);
 	d->m_system_tray->setToolTip(QString("I am tray"));
-	d->m_system_tray->setIcon(QIcon(":/MyAudioPlayer/data/icon/format.ico"));
+	d->m_system_tray->setIcon(QIcon(":/MyAudioPlayer/data/icon/AudioPlayer.png"));
 	TrayMenu *tray_menu = new TrayMenu(this);
 	d->m_system_tray->setContextMenu(tray_menu);
 	connect(tray_menu, &TrayMenu::showWidget, this, &QWidget::show);
@@ -184,7 +182,7 @@ void MyAudioPlayer::initTrayMenu() {
 }
 
 void MyAudioPlayer::initAudioPlayer() {
-	setShortcutHook();
+	//setShortcutHook();
 
 	d->m_volumeSlider->hide();
 	d->m_networkSearchEdit->hide();
@@ -342,12 +340,14 @@ void MyAudioPlayer::setShortcutHook() {
 	std::vector<std::vector<int>> vk_keys;
 	std::vector<std::function<void()>> functions;
 	std::vector<int> vk_key;
-	vk_key.reserve(2);
+	vk_key.reserve(3);
 	vk_key.push_back(VK_CONTROL);
+	vk_key.push_back(VK_MENU);	// alt键
 	vk_key.push_back('P');
 	vk_keys.push_back(vk_key);
 	functions.push_back(std::bind(&MyAudioPlayer::togglePlayback, this));
 
+	// 此处ctrl和alt键也需使用，故只去掉'P'键，加入本次需要使用的键即可，以下同
 	vk_key.pop_back();
 	vk_key.push_back(VK_LEFT);
 	vk_keys.push_back(vk_key);
@@ -356,28 +356,22 @@ void MyAudioPlayer::setShortcutHook() {
 	vk_key.pop_back();
 	vk_key.push_back(VK_RIGHT);
 	vk_keys.push_back(vk_key);
-	functions.push_back([this]() {playNext(); });
+	functions.push_back(std::bind(&MyAudioPlayer::playNext, this, -1));
+
+	vk_key.pop_back();
+	vk_key.push_back('O');
+	vk_keys.push_back(vk_key);
+	functions.push_back(std::bind(&MyAudioPlayer::changeDisplay, this));
 
 	SetFunctions(vk_keys, functions);
 	SetHook();
 }
 
 void MyAudioPlayer::iconIsActived(QSystemTrayIcon::ActivationReason reason) {
-	switch (reason)
-	{
-		//点击托盘显示窗口
-	case QSystemTrayIcon::Trigger:
-	{
-		show();
-		break;
-	}
+	switch (reason){
 	//双击托盘显示窗口
-	case QSystemTrayIcon::DoubleClick:
-	{
-		if (isVisible())
-			hide();
-		else
-			showNormal();
+	case QSystemTrayIcon::DoubleClick:{
+		changeDisplay();
 		break;
 	}
 	default:
@@ -513,6 +507,13 @@ void MyAudioPlayer::renameSonglist(QListWidgetItem *item) {
 	d->m_songlistList.replace(index, item->text());
 	d->m_currentSonglist = item->text();
 	addSonglistMenu();
+}
+
+void MyAudioPlayer::changeDisplay() {
+	if (isVisible())
+		hide();
+	else
+		show();
 }
 
 // 根据歌单加载歌曲
@@ -900,20 +901,17 @@ void MyAudioPlayer::keyPressEvent(QKeyEvent *event) {
 }
 
 void MyAudioPlayer::quit() {
-	if (!d->m_isAppQuit) {
-		UnsetHook();
-		QSettings setting(qApp->applicationDirPath() + "/data/init.ini", QSettings::IniFormat);
-		setting.beginGroup("MyAudioPlayer");
-		setting.setValue("currentSonglistIndex", d->m_currentSonglistIndex);
-		setting.setValue("currentSonglist", d->m_currentSonglist);
-		setting.setValue("currentMusicIndex", d->m_currentMusicIndex);
-		setting.setValue("isTranslatedLyric", d->m_isTranslatedLyric);
-		setting.setValue("isShowLyric", d->m_isShowLyric);
-		setting.endGroup();
-		d->m_isAppQuit = true;
-	}
+	QApplication::exit(0);
 }
 
 MyAudioPlayer::~MyAudioPlayer() {
-	quit();
+	UnsetHook();
+	QSettings setting(qApp->applicationDirPath() + "/data/init.ini", QSettings::IniFormat);
+	setting.beginGroup("MyAudioPlayer");
+	setting.setValue("currentSonglistIndex", d->m_currentSonglistIndex);
+	setting.setValue("currentSonglist", d->m_currentSonglist);
+	setting.setValue("currentMusicIndex", d->m_currentMusicIndex);
+	setting.setValue("isTranslatedLyric", d->m_isTranslatedLyric);
+	setting.setValue("isShowLyric", d->m_isShowLyric);
+	setting.endGroup();
 }

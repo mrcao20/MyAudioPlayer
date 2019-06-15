@@ -13,12 +13,16 @@ public:
 	explicit TcpClient(QObject *parent = 0);
 	~TcpClient();
 
-	void init();
+	bool init();
 
 private slots:
 	//¿Í»§¶Ë²Ûº¯Êý
 	void readData();
 	void readError(QAbstractSocket::SocketError);
+	void writeData(const QString &msg);
+
+private:
+	void deleteTcpSocket();
 
 private:
 	QScopedPointer<TcpClientData> d;

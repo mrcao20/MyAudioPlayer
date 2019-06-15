@@ -13,7 +13,8 @@
 #define VKEY "https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg?g_tk=1109981464&loginUin=839566521&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0&cid=205361747&uin=839566521&songmid=%1&filename=%2.m4a&guid=2054016189"
 #define SONG "http://dl.stream.qqmusic.qq.com/%1.m4a?vkey=%2&guid=2054016189&uin=839566521&fromtag=66"
 #define LYRIC "https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?callback=MusicJsonCallback_lrc&pcachetime=1526475335158&songmid=%1&g_tk=202117865&jsonpCallback=MusicJsonCallback_lrc&loginUin=839566521&hostUin=0&format=jsonp&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0"
-#define SEARCH "http://s.music.qq.com/fcgi-bin/music_search_new_platform?t=0&n=%1&aggr=1&cr=1&loginUin=0&format=json&inCharset=GB2312&outCharset=utf-8&notice=0&platform=jqminiframe.json&needNewCode=0&p=%2&catZhida=0&remoteplace=sizer.newclient.next_song&w=%3"
+//#define SEARCH "http://s.music.qq.com/fcgi-bin/music_search_new_platform?t=0&n=%1&aggr=1&cr=1&loginUin=0&format=json&inCharset=GB2312&outCharset=utf-8&notice=0&platform=jqminiframe.json&needNewCode=0&p=%2&catZhida=0&remoteplace=sizer.newclient.next_song&w=%3"
+#define SEARCH "https://c.y.qq.com/soso/fcgi-bin/client_search_cp?ct=24&qqmusic_ver=1298&new_json=1&remoteplace=txt.yqq.song&searchid=71813867590975010&t=0&aggr=1&cr=1&catZhida=1&lossless=0&flag_qc=0&n=%1&p=%2&w=%3&g_tk=5381&jsonpCallback=MusicJsonCallback031135166293541294&loginUin=0&hostUin=0&format=jsonp&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0"
 
 QQApi::QQApi(QObject *parent)
 	: NetworkApiBase(parent)
@@ -47,19 +48,25 @@ QList<SongSearchDetailedInfo> QQApi::searchSong(const QString &songName, int off
 	QList<SongSearchDetailedInfo> songSearchDetailedInfos;
 	int page = offset / m_searchSongNum + 1;
 	QByteArray json = getNetworkData(QString(SEARCH).arg(m_searchSongNum).arg(page).arg(songName));
+	json.replace("MusicJsonCallback031135166293541294(", "");
+	json.remove(json.size() - 1, 1);
 	m_songCount = getJsonValue(json, "data.song.curnum").toInt() - 1;
 	QJsonArray jsonArray = getJsonValue(json, "data.song.list").toArray();
 	for (auto itr = jsonArray.begin(); itr != jsonArray.end(); itr++) {
 		QJsonObject jsonObject = itr->toObject();
 		SongSearchDetailedInfo songSearchDetailedInfo;
-		QString f = getJsonValue(jsonObject, "f").toString();
+		/*QString f = getJsonValue(jsonObject, "f").toString();
 		QStringList fList = f.split(QRegularExpression("\\|"));
 		if (fList.size() < 25)
 			continue;
 		songSearchDetailedInfo.song_id = fList.at(20);
 		songSearchDetailedInfo.song_name = getJsonValue(jsonObject, "fsong").toString();
 		songSearchDetailedInfo.song_artistName = getJsonValue(jsonObject, "fsinger").toString();
-		songSearchDetailedInfo.song_albumName = getJsonValue(jsonObject, "albumName_hilight").toString();
+		songSearchDetailedInfo.song_albumName = getJsonValue(jsonObject, "albumName_hilight").toString();*/
+		songSearchDetailedInfo.song_id = getJsonValue(jsonObject, "mid").toString();
+		songSearchDetailedInfo.song_name = getJsonValue(jsonObject, "title").toString();
+		songSearchDetailedInfo.song_artistName = getJsonValue(jsonObject, "singer.title").toString();
+		songSearchDetailedInfo.song_albumName = getJsonValue(jsonObject, "album.title").toString();
 		songSearchDetailedInfos.append(songSearchDetailedInfo);
 		if (songSearchDetailedInfos.size() >= m_searchSongNum)
 			break;

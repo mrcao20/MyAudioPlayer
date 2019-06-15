@@ -3,6 +3,7 @@
 #include <qmap.h>
 #include <QTime>
 #include <qtimer.h>
+#include <QRegularExpression>
 
 struct UntranslatedLyricDataPrivate {
 	qint64 m_passTime;				// 如果未暂停过，则为零，否则暂停之前所经过的时长

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'Lyric.ui'
 **
-** Created by: Qt User Interface Compiler version 5.10.1
+** Created by: Qt User Interface Compiler version 5.12.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,10 +10,7 @@
 #define UI_LYRIC_H
 
 #include <QtCore/QVariant>
-#include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
-#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -25,7 +22,7 @@ public:
     void setupUi(QWidget *LyricWidget)
     {
         if (LyricWidget->objectName().isEmpty())
-            LyricWidget->setObjectName(QStringLiteral("LyricWidget"));
+            LyricWidget->setObjectName(QString::fromUtf8("LyricWidget"));
         LyricWidget->resize(800, 120);
 
         retranslateUi(LyricWidget);
